@@ -1,6 +1,5 @@
 config BR2_PACKAGE_HELLO_WORLD
 	bool "hello_world"
-	select BR2_PACKAGE_HELLO_WORLD
 	help
 	  This is an example of the Hello-World package in 
 	  BuildRoot-Wrapper Repository. Add all your custom packages in
