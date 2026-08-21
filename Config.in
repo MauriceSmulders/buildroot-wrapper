@@ -1,8 +1,10 @@
-# This is the root configuration menu that injects your custom package tree
+# ==============================================================================
+#  UNIVERSAL KCONFIG EXTERNAL APPLICATION REGISTER
+# ==============================================================================
+
 menu "Custom Integrated Applications"
-`
-# Using the universal BR2_EXTERNAL_M_PATH macro ensures that no matter 
-# what name string a team chooses in external.desc, Kconfig parses it flawlessly.
+
+# The $ symbol is mandatory to force the engine to expand the macro string
 source "$(BR2_EXTERNAL_M_PATH)/package/hello-world/Config.in"
 
 endmenu
