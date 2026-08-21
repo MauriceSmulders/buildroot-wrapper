@@ -1,5 +1,5 @@
 # ==============================================================================
-#  BUILDROOT INVERTED SDK MASTER ENGINE
+#  BUILDROOT INVERTED SDK MASTER ENGINE & PROXY ROUTER
 # ==============================================================================
 
 # Centralized release tracking versions table - Modify ONLY here to shift baselines
@@ -9,16 +9,18 @@ BR_CANDIDATE_VER := 2025.11
 
 BR_DIR           := $(CURDIR)/.buildroot-core
 BOOTSTRAP_SCRIPT := $(CURDIR)/support/scripts/bootstrap.sh
+README_FILE      := $(CURDIR)/README.md
 
-.PHONY: all sysconfig repoclean lts stable candidate bootstrap_sandbox
+.PHONY: all sysconfig repoclean lts stable candidate bootstrap_sandbox help
 
 # ------------------------------------------------------------------------------
 #  Main Entry Execution Targets
 # ------------------------------------------------------------------------------
 
+# Pure empty entry rule maps straight to standard cross-compilation pipeline
 all:
 	@if [ ! -d "$(BR_DIR)" ]; then \
-		echo "[-] Error: Core sandbox missing. Run 'make sysconfig' or an explicit target first."; \
+		echo "[-] Error: Core sandbox missing. Run 'make sysconfig' or 'make lts' first."; \
 		exit 1; \
 	fi
 	@echo "[*] Triggering Buildroot with Local External Bindings..."
@@ -56,14 +58,41 @@ bootstrap_sandbox:
 	@cp -f $(BR_DIR)/defconfig $(CURDIR)/configs/generic_x86_64_defconfig
 
 # ------------------------------------------------------------------------------
+#  Interactive Self-Documentation Engine
+# ------------------------------------------------------------------------------
+help:
+	@if [ -f "$(README_FILE)" ]; then \
+		cat "$(README_FILE)"; \
+	else \
+		echo "=== BUILDROOT MASTER INVERTED SDK COMMANDS ==="; \
+		echo "  make lts       - Bootstrap and configure Long Term Support kernel environment"; \
+		echo "  make stable    - Bootstrap and configure Mainline Stable kernel environment"; \
+		echo "  make candidate - Bootstrap and configure Bleeding Edge Candidate kernel environment"; \
+		echo "  make help      - Render workspace project documentation metrics"; \
+		echo "  make repoclean - Completely nuke internal sandboxes and build state"; \
+		echo "  make <target>  - Pass any standard Buildroot commands directly down (e.g. menuconfig)"; \
+	fi
+
+# ------------------------------------------------------------------------------
 #  Destruction Safeguards
 # ------------------------------------------------------------------------------
 repoclean:
-	@echo -n "WARNING: This will completely nuke your cached core environment (.buildroot-core) and files. Continue? [y/N]: " && read ans && \
+	@echo -n "WARNING: This will completely nuke your cached core environment (.buildroot-core). Continue? [y/N]: " && read ans && \
 	if [ "$$ans" = "y" ] || [ "$$ans" = "Y" ]; then \
 		echo "[*] Purging workspace components safely..."; \
 		rm -rf $(BR_DIR); \
 		echo "[+] Workspace cleared."; \
 	else \
-		echo "[*] Operation cancelled. Core environment preserved."; \
+		echo "[*] Clean cycle aborted. Core sandbox preserved."; \
 	fi
+
+# ------------------------------------------------------------------------------
+#  The Catch-All Double-Colon Passthrough Engine (Proxies commands to Buildroot)
+# ------------------------------------------------------------------------------
+# The double-colon pattern matches arbitrary custom word strings unconditionally
+%::
+	@if [ ! -d "$(BR_DIR)" ]; then \
+		echo "[-] Error: Core sandbox missing. Run 'make sysconfig' or 'make lts' first to bootstrap."; \
+		exit 1; \
+	fi
+	@$(MAKE) -C $(BR_DIR) BR2_EXTERNAL=$(CURDIR) $@
