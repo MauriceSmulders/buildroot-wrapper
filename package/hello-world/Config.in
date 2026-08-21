@@ -1,4 +1,8 @@
 config BR2_PACKAGE_HELLO_WORLD
-    bool "hello-world"
-    help
-      Minimal test binary to prove the inverted SDK path works.
+	bool "hello_world"
+	select BR2_PACKAGE_HELLO_WORLD
+	help
+	  This is an example of the Hello-World package in 
+	  BuildRoot-Wrapper Repository. Add all your custom packages in
+	  this file tree following the normal builroot config
+
