@@ -22,7 +22,7 @@ sync_br:
 	@if [ ! -d "$(BR_DIR)" ]; then \
 		echo "[*] Fetching Pure Buildroot Core Source v$(BR_VERSION)..."; \
 		mkdir -p $(BR_DIR); \
-		curl -sL $(BR_URL) | tar -xz --strip-components=1 -C $(BR_DIR); \
+		curl -sL $(BR_URL) | tar -xJ --strip-components=1 -C $(BR_DIR); \
 	fi
 
 # Bridge to expose standard graphic menuconfig commands cleanly up to root shell
@@ -35,3 +35,6 @@ sysconfig: sync_br
 
 clean:
 	@if [ -d "$(BR_DIR)" ]; then $(MAKE) -C $(BR_DIR) clean; fi
+
+repoclean:
+	@if [ -d "$(BR_DIR)" ]; then rm -rf $(BR_DIR) ; fi
