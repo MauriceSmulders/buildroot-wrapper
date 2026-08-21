@@ -1,0 +1,4 @@
+config BR2_PACKAGE_HELLO_WORLD
+    bool "hello-world"
+    help
+      Minimal test binary to prove the inverted SDK path works.

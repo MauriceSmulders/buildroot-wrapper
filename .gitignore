@@ -1,0 +1,9 @@
+# Protect the clean repository from massive multi-gigabyte build artifacts
+.buildroot-core/
+/output/
+/build/
+/host/
+/images/
+/.vscode/
+*.config
+*.config.old
