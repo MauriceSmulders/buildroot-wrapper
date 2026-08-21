@@ -4,7 +4,8 @@
 
 menu "Custom Integrated Applications"
 
-# The $ symbol is mandatory to force the engine to expand the macro string
-source "$(BR2_EXTERNAL_M_PATH)/package/hello-world/Config.in"
+# Buildroot natively generates this specific path string variable matching 
+# the explicit "name:" tag defined inside your local external.desc file.
+source "$(BR2_EXTERNAL_BR2_WRAPPER_TEMPLATE_PATH)/package/hello-world/Config.in"
 
 endmenu
