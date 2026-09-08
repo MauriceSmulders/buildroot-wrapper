@@ -3,7 +3,7 @@
 #  UNIVERSAL HOST BOOTSTRAP, DEPENDENCY TRACKER & BUILDROOT CORE RUNTIME ENGINE
 # ==============================================================================
 set -euo pipefail
-
+set -x
 # Capture absolute workspace roots cleanly relative to the script execution path
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 WORKSPACE_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
@@ -49,22 +49,22 @@ install_host_dependencies() {
     if [ -x "$(command -v apt-get)" ]; then
         echo "[*] Detected Debian/Ubuntu-based host platform."
         sudo apt-get update -qq
-        sudo apt-get install -y $DEBIAN_DEPS
+        sudo apt-get install -y "${DEBIAN_DEPS}"
 
     # 2. RedHat / Fedora / CentOS Stream
     elif [ -x "$(command -v dnf)" ]; then
         echo "[*] Detected RPM/RedHat-based host platform."
-        sudo dnf install --assumeyes $RPM_DEPS
+        sudo dnf install --assumeyes "${RPM_DEPS}"
 
     # 3. Arch Linux / Manjaro
     elif [ -x "$(command -v pacman)" ]; then
         echo "[*] Detected Arch-based host platform."
-        sudo pacman -Sy --needed --noconfirm $ARCH_DEPS
+        sudo pacman -Sy --needed --noconfirm "${ARCH_DEPS}"
 
     # 4. openSUSE
     elif [ -x "$(command -v zypper)" ]; then
         echo "[*] Detected openSUSE-based host platform."
-        sudo zypper --non-interactive install $SUSE_DEPS
+        sudo zypper --non-interactive install "${SUSE_DEPS}"
 
     else
         echo "[-] ERROR: Unknown system package manager. Please ensure Buildroot prerequisites are manualy deployed."
@@ -85,14 +85,21 @@ bootstrap_buildroot_core() {
         return 0
     fi
 
+    # Pre-flight Check: Ensure target has a viable network gateway to the mirror source
+    echo "[*] Verifying remote network mirror availability..."
+    if ! curl -sI --connect-timeout 5 -A "${USER_AGENT}" "https://buildroot.org" > /dev/null 2>&1; then
+        echo "[-] ERROR: Cannot reach buildroot.org. Verify network interface connections or proxy routing configurations."
+        exit 1
+    fi
+
     echo "[*] Launching Workspace Bootstrap Platform [${REQ_TYPE} Release v${REQ_VER}]..."
     mkdir -p "${BR_DIR}"
 
-    # Step 2.1: Download raw binary archive tarball safely
+    # Step 2.1: Download raw binary archive tarball safely with explicit curly-brace expansions
     echo "[*] Step 1/4: Syncing source tarball binary streams..."
     curl -#fL -A "${USER_AGENT}" \
          -o "${WORKSPACE_DIR}/.${TARBALL_FILE}" \
-         "https://buildroot.org{TARBALL_FILE}" || {
+         "https://buildroot.org/downloads/${TARBALL_FILE}" || {
              echo "[-] ERROR: Source archive transmission dropped by remote mirror host.";
              rm -rf "${BR_DIR}";
              exit 1;
@@ -102,7 +109,7 @@ bootstrap_buildroot_core() {
     echo "[*] Step 2/4: Syncing PGP cryptographic verification signatures..."
     curl -#fL -A "${USER_AGENT}" \
          -o "${WORKSPACE_DIR}/.${SIGN_FILE}" \
-         "https://buildroot.org{SIGN_FILE}" || {
+         "https://buildroot.org/downloads/${SIGN_FILE}" || {
              echo "[-] ERROR: Cryptographic verification metadata download dropped.";
              rm -f "${WORKSPACE_DIR}/.${TARBALL_FILE}";
              rm -rf "${BR_DIR}";
