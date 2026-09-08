@@ -2,7 +2,7 @@
 # Local helper to aggregate the last 6 generations of Buildroot releases
 set -e
 
-MANIFEST_FILE="verified_manifest.txt"
+MANIFEST_FILE="../../verified_manifest.txt"
 TEMP_DIR=$(mktemp -d)
 
 # Clear or initialize the manifest file
