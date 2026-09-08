@@ -11,6 +11,19 @@ BR_DIR           := $(CURDIR)/.buildroot-core
 BOOTSTRAP_SCRIPT := $(CURDIR)/support/scripts/bootstrap.sh
 README_FILE      := $(CURDIR)/README.md
 
+
+# ------------------------------------------------------------------------------
+#  Deal with GCC Version issues
+# ------------------------------------------------------------------------------
+# Detect if the host system compiler is GCC 15 or newer
+HOST_GCC_VERSION := $(shell gcc -dumpversion | cut -d. -f1)
+
+ifeq ($(shell expr $(HOST_GCC_VERSION) \>= 15), 1)
+    # Inject the older standard into Buildroot's global host flags
+    export HOST_CFLAGS += -std=gnu17
+    export HOST_CXXFLAGS += -std=gnu17
+endif
+
 .PHONY: all sysconfig repoclean lts stable candidate bootstrap_sandbox help
 
 # ------------------------------------------------------------------------------
@@ -30,6 +43,7 @@ all:
 	@$(MAKE) -C $(BR_DIR) BR2_EXTERNAL=$(CURDIR)
 
 sysconfig: lts
+%_defconfig: lts
 
 # ------------------------------------------------------------------------------
 #  Explicit Release Stream Selectors (Binds parameters text cleanly to target)
@@ -57,6 +71,23 @@ bootstrap_sandbox:
 	@$(MAKE) -C $(BR_DIR) BR2_EXTERNAL=$(CURDIR) savedefconfig
 	@cp -f $(BR_DIR)/defconfig $(CURDIR)/configs/generic_x86_64_defconfig
 
+
+# ------------------------------------------------------------------------------
+#  Dynamic Defconfig Initializer Loop
+# ------------------------------------------------------------------------------
+# Catch individual board profiles, initialize under LTS rules, and pass it down
+%_defconfig:
+	@if [ ! -d "$(BR_DIR)" ]; then \
+		echo "[*] Workspace uninitialized. Bootstrapping LTS profile for $@..."; \
+		$(MAKE) BR_TYPE_STR=LTS BR_VER_STR=$(BR_LTS_VER) bootstrap_defconfig; \
+	fi
+	@echo "[*] Appending Profile: $@"
+	@$(MAKE) -C $(BR_DIR) BR2_EXTERNAL=$(CURDIR) $@
+
+# Hidden staging rule to clean up bootstrap parameter passing
+bootstrap_defconfig:
+	@bash $(BOOTSTRAP_SCRIPT) "$(BR_TYPE_STR)" "$(BR_VER_STR)" "$(BR_DIR)"
+
 # ------------------------------------------------------------------------------
 #  Interactive Self-Documentation Engine
 # ------------------------------------------------------------------------------
@@ -81,6 +112,7 @@ repoclean:
 	if [ "$$ans" = "y" ] || [ "$$ans" = "Y" ]; then \
 		echo "[*] Purging workspace components safely..."; \
 		rm -rf $(BR_DIR); \
+		rm -rf .host-configured; \
 		echo "[+] Workspace cleared."; \
 	else \
 		echo "[*] Clean cycle aborted. Core sandbox preserved."; \
@@ -89,10 +121,10 @@ repoclean:
 # ------------------------------------------------------------------------------
 #  The Catch-All Double-Colon Passthrough Engine (Proxies commands to Buildroot)
 # ------------------------------------------------------------------------------
-# The double-colon pattern matches arbitrary custom word strings unconditionally
 %::
 	@if [ ! -d "$(BR_DIR)" ]; then \
 		echo "[-] Error: Core sandbox missing. Run 'make sysconfig' or 'make lts' first to bootstrap."; \
 		exit 1; \
 	fi
-	@$(MAKE) -C $(BR_DIR) BR2_EXTERNAL=$(CURDIR) $@
+	@$(MAKE) -C $(BR_DIR) BR2_EXTERNAL=$(CURDIR) HOSTCFLAGS="-Wno-format-overflow" $@
+
