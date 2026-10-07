@@ -36,6 +36,29 @@ Bootstrap the toolchain repository sandbox, verify upstream cryptographic signat
 make lts
 ```
 
+### First Run (fresh clone, or after `make repoclean`)
+Bare `make` detects the missing sandbox and offers the release stream itself,
+then bootstraps your pick and falls through into the build:
+```bash
+$ make
+[*] Core sandbox missing. Select a release stream:
+      1) lts       - Long Term Support (2025.02)
+      2) stable    - Stable (2025.08)
+      3) candidate - Release Candidate (2025.11) [risky]
+Selection [1/2/3]:
+```
+Or skip the menu and go direct:
+```bash
+make lts        # Long Term Support
+make stable     # Stable
+make candidate  # Release Candidate [risky]
+```
+
+> Note: do not pipe the bootstrap/configure step through `tee` — `menuconfig`
+> is ncurses and needs a real terminal; piping breaks its navigation.
+> `time make 2>&1 | tee build.log` is safe for the build itself, since the
+> build never invokes `menuconfig`.
+
 ### Catch-All Target Proxies
 Any standard Buildroot keyword directive entered at the project root is automatically captured, bound to the custom external tree parameters, and forwarded downstream to the core engine space natively:
 ```bash
