@@ -1,5 +1,6 @@
 # Protect the clean repository from massive multi-gigabyte build artifacts
 .buildroot-core/
+.buildroot*.tar*
 /output/
 /build/
 /host/
@@ -8,3 +9,6 @@
 *.config
 *.config.old
 .host_configured
+# deliverable
+./artifacts/
+:wq

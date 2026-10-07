@@ -8,6 +8,9 @@ BR_STABLE_VER    := 2025.08
 BR_CANDIDATE_VER := 2025.11
 
 BR_DIR           := $(CURDIR)/.buildroot-core
+BR_ARTIFACTS     := $(CURDIR)/artifacts
+BR_MAKE          := $(MAKE) -C $(BR_DIR) O=$(BR_ARTIFACTS) BR2_EXTERNAL=$(CURDIR)
+
 BOOTSTRAP_SCRIPT := $(CURDIR)/support/scripts/bootstrap.sh
 README_FILE      := $(CURDIR)/README.md
 
@@ -86,6 +89,10 @@ candidate: bootstrap_sandbox
 # ------------------------------------------------------------------------------
 bootstrap_sandbox:
 	@bash $(BOOTSTRAP_SCRIPT) "$(BR_TYPE_STR)" "$(BR_VER_STR)" "$(BR_DIR)"
+	@if [ ! -t 0 ] || [ ! -t 1 ]; then \
+		echo "[-] ERROR: stdin/stdout is not a terminal (piped?). menuconfig needs a real terminal - re-run without pipes or redirection."; \
+		exit 1; \
+	fi
 	@$(MAKE) -C $(BR_DIR) BR2_EXTERNAL=$(CURDIR) menuconfig
 	@echo "[*] Exporting custom configuration state back to local workspace..."
 	@mkdir -p $(CURDIR)/configs
@@ -97,7 +104,9 @@ bootstrap_sandbox:
 #  Interactive Self-Documentation Engine
 # ------------------------------------------------------------------------------
 help:
-	@if [ -f "$(README_FILE)" ]; then \
+	@if [ -d "$(BR_DIR)" ]; then \
+		$(MAKE) -C $(BR_DIR) BR2_EXTERNAL=$(CURDIR) help; \
+	elif [ -f "$(README_FILE)" ]; then \
 		cat "$(README_FILE)"; \
 	else \
 		echo "=== BUILDROOT MASTER INVERTED SDK COMMANDS ==="; \
