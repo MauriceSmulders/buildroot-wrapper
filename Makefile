@@ -43,7 +43,18 @@ all:
 	@$(MAKE) -C $(BR_DIR) BR2_EXTERNAL=$(CURDIR)
 
 sysconfig: lts
-%_defconfig: lts
+
+# ------------------------------------------------------------------------------
+#  Dynamic Defconfig Initializer (merged): bootstrap the LTS core only when the
+#  sandbox is missing, then apply the requested board profile directly.
+# ------------------------------------------------------------------------------
+%_defconfig:
+	@if [ ! -d "$(BR_DIR)" ]; then \
+		echo "[*] Workspace uninitialized. Bootstrapping LTS core for $@..."; \
+		bash $(BOOTSTRAP_SCRIPT) "LTS" "$(BR_LTS_VER)" "$(BR_DIR)"; \
+	fi
+	@echo "[*] Appending Profile: $@"
+	@$(MAKE) -C $(BR_DIR) BR2_EXTERNAL=$(CURDIR) $@
 
 # ------------------------------------------------------------------------------
 #  Explicit Release Stream Selectors (Binds parameters text cleanly to target)
@@ -71,22 +82,6 @@ bootstrap_sandbox:
 	@$(MAKE) -C $(BR_DIR) BR2_EXTERNAL=$(CURDIR) savedefconfig
 	@cp -f $(BR_DIR)/defconfig $(CURDIR)/configs/generic_x86_64_defconfig
 
-
-# ------------------------------------------------------------------------------
-#  Dynamic Defconfig Initializer Loop
-# ------------------------------------------------------------------------------
-# Catch individual board profiles, initialize under LTS rules, and pass it down
-%_defconfig:
-	@if [ ! -d "$(BR_DIR)" ]; then \
-		echo "[*] Workspace uninitialized. Bootstrapping LTS profile for $@..."; \
-		$(MAKE) BR_TYPE_STR=LTS BR_VER_STR=$(BR_LTS_VER) bootstrap_defconfig; \
-	fi
-	@echo "[*] Appending Profile: $@"
-	@$(MAKE) -C $(BR_DIR) BR2_EXTERNAL=$(CURDIR) $@
-
-# Hidden staging rule to clean up bootstrap parameter passing
-bootstrap_defconfig:
-	@bash $(BOOTSTRAP_SCRIPT) "$(BR_TYPE_STR)" "$(BR_VER_STR)" "$(BR_DIR)"
 
 # ------------------------------------------------------------------------------
 #  Interactive Self-Documentation Engine
@@ -126,5 +121,5 @@ repoclean:
 		echo "[-] Error: Core sandbox missing. Run 'make sysconfig' or 'make lts' first to bootstrap."; \
 		exit 1; \
 	fi
-	@$(MAKE) -C $(BR_DIR) BR2_EXTERNAL=$(CURDIR) HOSTCFLAGS="-Wno-format-overflow" $@
+	@$(MAKE) -C $(BR_DIR) BR2_EXTERNAL=$(CURDIR) HOST_CFLAGS="-Wno-format-overflow" $@
 

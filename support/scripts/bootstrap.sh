@@ -3,7 +3,6 @@
 #  UNIVERSAL HOST BOOTSTRAP, DEPENDENCY TRACKER & BUILDROOT CORE RUNTIME ENGINE
 # ==============================================================================
 set -euo pipefail
-set -x
 # Capture absolute workspace roots cleanly relative to the script execution path
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 WORKSPACE_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
@@ -49,22 +48,22 @@ install_host_dependencies() {
     if [ -x "$(command -v apt-get)" ]; then
         echo "[*] Detected Debian/Ubuntu-based host platform."
         sudo apt-get update -qq
-        sudo apt-get install -y "${DEBIAN_DEPS}"
+        sudo apt-get install -y ${DEBIAN_DEPS}
 
     # 2. RedHat / Fedora / CentOS Stream
     elif [ -x "$(command -v dnf)" ]; then
         echo "[*] Detected RPM/RedHat-based host platform."
-        sudo dnf install --assumeyes "${RPM_DEPS}"
+        sudo dnf install --assumeyes ${RPM_DEPS}
 
     # 3. Arch Linux / Manjaro
     elif [ -x "$(command -v pacman)" ]; then
         echo "[*] Detected Arch-based host platform."
-        sudo pacman -Sy --needed --noconfirm "${ARCH_DEPS}"
+        sudo pacman -Sy --needed --noconfirm ${ARCH_DEPS}
 
     # 4. openSUSE
     elif [ -x "$(command -v zypper)" ]; then
         echo "[*] Detected openSUSE-based host platform."
-        sudo zypper --non-interactive install "${SUSE_DEPS}"
+        sudo zypper --non-interactive install ${SUSE_DEPS}
 
     else
         echo "[-] ERROR: Unknown system package manager. Please ensure Buildroot prerequisites are manualy deployed."
@@ -120,7 +119,7 @@ bootstrap_buildroot_core() {
     echo "[*] Step 3/4: Processing cryptographic signature authenticity flags..."
     if command -v gpg >/dev/null 2>&1; then
         gpg --verify "${WORKSPACE_DIR}/.${SIGN_FILE}" "${WORKSPACE_DIR}/.${TARBALL_FILE}" 2>/dev/null || {
-            echo "[!] WARNING: Upstream key missing from local system keyring. Transport payload fingerprint accepted.";
+            echo "[!] WARNING: Upstream key missing from local keyring - signature NOT verified, tarball accepted on transport trust only.";
         }
     else
         echo "[*] GnuPG utility missing from runtime shell environment. Skipping PGP checksum verification pass...";

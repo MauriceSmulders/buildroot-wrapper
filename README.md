@@ -18,7 +18,7 @@ By encapsulating the core Buildroot engine entirely within a `.gitignore` sandbo
 ```text
                         [ THE DETERMINISTIC TOOLCHAIN ENGINE ]
   
-  \$ git clone git@github.com:MSLaaf/buildroot-wrapper.git
+  \$ git clone git@github.com:MauriceSmulders/buildroot-wrapper.git
   \$ make lts
          |
          v

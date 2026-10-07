@@ -24,8 +24,8 @@ VERSIONS=(
 echo "Fetching archives and generating manifest fingerprints..."
 
 for VER in "${VERSIONS[@]}"; do
-    FILENAME="buildroot-${VER}.tar.gz"
-    URL="https://buildroot.org{FILENAME}"
+    FILENAME="buildroot-${VER}.tar.xz"
+    URL="https://buildroot.org/downloads/${FILENAME}"
     
     echo -n "Processing ${FILENAME}... "
     
