@@ -30,11 +30,21 @@ endif
 #  Main Entry Execution Targets
 # ------------------------------------------------------------------------------
 
-# Pure empty entry rule maps straight to standard cross-compilation pipeline
+# First-run entry: no sandbox yet -> offer the release stream choice,
+# bootstrap it, then fall through into the standard build pipeline.
 all:
 	@if [ ! -d "$(BR_DIR)" ]; then \
-		echo "[-] Error: Core sandbox missing. Run 'make sysconfig' or 'make lts' first."; \
-		exit 1; \
+		echo "[*] Core sandbox missing. Select a release stream:"; \
+		echo "      1) lts       - Long Term Support ($(BR_LTS_VER))"; \
+		echo "      2) stable    - Stable ($(BR_STABLE_VER))"; \
+		echo "      3) candidate - Release Candidate ($(BR_CANDIDATE_VER)) [risky]"; \
+		printf "Selection [1/2/3]: "; read choice; \
+		case "$$choice" in \
+			1) $(MAKE) lts ;; \
+			2) $(MAKE) stable ;; \
+			3) $(MAKE) candidate ;; \
+			*) echo "[-] Aborted."; exit 1 ;; \
+		esac; \
 	fi
 	@echo "[*] Triggering Buildroot with Local External Bindings..."
 	@if [ -f $(CURDIR)/configs/generic_x86_64_defconfig ]; then \
