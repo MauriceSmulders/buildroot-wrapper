@@ -27,7 +27,7 @@ ifeq ($(shell expr $(HOST_GCC_VERSION) \>= 15), 1)
     export HOST_CXXFLAGS += -std=gnu17
 endif
 
-.PHONY: all sysconfig repoclean lts stable candidate bootstrap_sandbox help
+.PHONY: all sysconfig repoclean totalclean lts stable candidate bootstrap_sandbox help
 
 # ------------------------------------------------------------------------------
 #  Main Entry Execution Targets
@@ -122,14 +122,32 @@ help:
 #  Destruction Safeguards
 # ------------------------------------------------------------------------------
 repoclean:
-	@echo -n "WARNING: This will completely nuke your cached core environment (.buildroot-core). Continue? [y/N]: " && read ans && \
+	@echo -n "WARNING: This will completely nuke your cached core environment (.buildroot-core). Artifacts are kept. Continue? [y/N]: " && read ans && \
 	if [ "$$ans" = "y" ] || [ "$$ans" = "Y" ]; then \
 		echo "[*] Purging workspace components safely..."; \
 		rm -rf $(BR_DIR); \
 		rm -rf .host-configured; \
-		echo "[+] Workspace cleared."; \
+		echo "[+] Workspace cleared. Artifacts preserved."; \
 	else \
 		echo "[*] Clean cycle aborted. Core sandbox preserved."; \
+	fi
+
+# Double-prompted full nuke: core sandbox AND build artifacts
+totalclean:
+	@echo -n "WARNING: This will nuke the core sandbox AND all build artifacts. Continue? [y/N]: " && read ans && \
+	if [ "$$ans" = "y" ] || [ "$$ans" = "Y" ]; then \
+		echo -n "REALLY sure? Type 'yes' to confirm: " && read ans2 && \
+		if [ "$$ans2" = "yes" ]; then \
+			echo "[*] Purging everything..."; \
+			rm -rf $(BR_DIR); \
+			rm -rf $(BR_ARTIFACTS); \
+			rm -rf .host-configured; \
+			echo "[+] Everything purged."; \
+		else \
+			echo "[*] Aborted. Nothing touched."; \
+		fi; \
+	else \
+		echo "[*] Clean cycle aborted. Nothing touched."; \
 	fi
 
 # ------------------------------------------------------------------------------
