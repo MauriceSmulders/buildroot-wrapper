@@ -1,4 +1,4 @@
-:w#!/bin/sh
+#!/bin/sh
 # setup.sh - Universal, Idempotent Host Dependency Bootstrap
 set -e
 
