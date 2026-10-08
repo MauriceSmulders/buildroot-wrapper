@@ -14,3 +14,16 @@
   - [ ] Add stage 1 verification: Validate `verified_manifest.txt.sig` authenticity.
   - [ ] Add stage 2 verification: Map downloaded tarball against verified SHA256 string.
 
+~ [ ] **Automatic Mechanism to present Selection of predefined Configs from buildroot
+  ~ [ ] Fetch list
+  ~ [ ] Build dynamic kconfig defition
+  ~ [ ] Exit download stage before running config
+
+~ [ ] Mechanism use latest LTS, Stable and Candidate from buildroot.org
+  ~ [ ] Externalize table from Makefile
+  ~ [ ] Tell versions
+  ~ [ ] Option to hardcode specific version too
+
+~ [ ] Add menu to add external repos by hand
+
+
