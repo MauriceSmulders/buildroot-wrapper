@@ -9,10 +9,10 @@
   - [ ] Implement manual out-of-band audit process for new upstream releases.
   - [ ] Sign generated `verified_manifest.txt` with company private key to emit `.sig`.
 
-- [ ] **Wire Up Verification Steps**
-  - [ ] Update `setup.sh` to isolate a temporary GPG keyring using `--no-default-keyring`.
-  - [ ] Add stage 1 verification: Validate `verified_manifest.txt.sig` authenticity.
-  - [ ] Add stage 2 verification: Map downloaded tarball against verified SHA256 string.
+- [*] **Wire Up Verification Steps**
+  - [*] Update `setup.sh` to isolate a temporary GPG keyring using `--no-default-keyring`.
+  - [*] Add stage 1 verification: Validate `verified_manifest.txt.sig` authenticity.
+  - [*] Add stage 2 verification: Map downloaded tarball against verified SHA256 string.
 
 ~ [ ] **Automatic Mechanism to present Selection of predefined Configs from buildroot
   ~ [ ] Fetch list

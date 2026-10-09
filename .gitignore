@@ -11,3 +11,4 @@
 .host_configured
 # deliverable
 ./artifacts/
+.buildroot_gpg/
