@@ -28,10 +28,10 @@ SIGN_FILE="buildroot-${REQ_VER}.tar.xz.sign"
 USER_AGENT="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 
 # Unified package dependency mappings for Buildroot compilation (Includes compilation tools)
-DEBIAN_DEPS="build-essential sed make binutils diffutils gcc g++ bash patch gzip bzip2 perl tar cpio unzip rsync file bc findutils gawk wget libncurses-dev m4 bison flex gnupg"
-ARCH_DEPS="base-devel sed make binutils diffutils gcc bash patch gzip bzip2 perl tar cpio unzip rsync file bc findutils gawk wget ncurses m4 bison flex gnupg"
-RPM_DEPS="bash bc binutils bzip2 cpio diffutils file findutils gawk gcc gcc-c++ gzip make ncurses-devel patch perl rsync sed tar unzip wget m4 bison flex gnupg"
-SUSE_DEPS="bash bc binutils bzip2 cpio diffutils file findutils gawk gcc gcc-c++ gzip make ncurses-devel patch perl rsync sed tar unzip wget m4 bison flex gnupg"
+DEBIAN_DEPS="build-essential sed make colormake binutils diffutils gcc g++ bash patch gzip bzip2 perl tar cpio unzip rsync file bc findutils gawk wget libncurses-dev m4 bison flex gnupg"
+ARCH_DEPS="base-devel sed make colormake binutils diffutils gcc bash patch gzip bzip2 perl tar cpio unzip rsync file bc findutils gawk wget ncurses m4 bison flex gnupg"
+RPM_DEPS="bash bc binutils bzip2 cpio diffutils file findutils gawk gcc gcc-c++ gzip make colormake ncurses-devel patch perl rsync sed tar unzip wget m4 bison flex gnupg"
+SUSE_DEPS="bash bc binutils bzip2 cpio diffutils file findutils gawk gcc gcc-c++ gzip make colormake ncurses-devel patch perl rsync sed tar unzip wget m4 bison flex gnupg"
 
 # ------------------------------------------------------------------------------
 # STAGE 1: Host Dependency Verification Loop (Idempotent Environment Check)
